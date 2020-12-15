@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Container,
   FormControl,
@@ -10,65 +10,32 @@ import {
   Col,
   Button,
 } from "react-bootstrap";
-
-const useBinanceApi = () => {
-  const [state, setState] = useState([]);
-
-  useEffect(() => {
-    (async () => {
-      const response = await fetch(
-        "https://api.binance.com/api/v3/ticker/price"
-      );
-      const data = await response.json();
-      setState(data);
-    })();
-  }, []);
-
-  return state;
-};
-
-const useExchangeRatesapi = () => {
-  const [state, setState] = useState([]);
-
-  useEffect(() => {
-    (async () => {
-      const response = await fetch(
-        "https://api.exchangeratesapi.io/latest?base=USD"
-      );
-      const data = await response.json();
-      const result = [];
-      for (const property in data.rates) {
-        result.push({ symbol: property, price: data.rates[property] });
-      }
-      setState(result);
-    })();
-  }, []);
-
-  return state;
-};
+import { useExchangeRatesapi, useBinanceApi } from "./ExchangeApi";
+import { ArrowLeftRight } from "react-bootstrap-icons";
 
 const Converter = () => {
-  const [amount, setAmount] = useState(1);
-  const [fromCurrency, setFromCurrency] = useState("EUR");
-  const [toCurrency, setToCurrency] = useState("LTCBTC");
-  const [result, setResult] = useState();
+  const [amount, setAmount] = useState("");
+  const [fromCurrency, setFromCurrency] = useState("");
+  const [toCurrency, setToCurrency] = useState("");
+  const [result, setResult] = useState("");
+  const [isSwitch, setIsSwitch] = useState(false);
 
   const fromCurrencies = useExchangeRatesapi();
   const toCurrencies = useBinanceApi();
 
-  const listFrom = true ? fromCurrencies : toCurrencies;
-  const listTo = true ? toCurrencies : fromCurrencies;
+  const listFrom = !isSwitch ? fromCurrencies : toCurrencies;
+  const listTo = !isSwitch ? toCurrencies : fromCurrencies;
 
   const convertHandler = () => {
     const from = listFrom.filter(({ symbol }) => symbol === fromCurrency)[0];
     const to = listTo.filter(({ symbol }) => symbol === toCurrency)[0];
     const result = amount * from.price * to.price;
-    setResult(result.toFixed(5));
+    return setResult(result.toFixed(5));
   };
 
   return (
     <Container>
-      <Form>
+      <Form style={{ padding: "3%" }}>
         <Row>
           <Col>
             <InputGroup className="mb-3" size="lg">
@@ -93,9 +60,17 @@ const Converter = () => {
               </DropdownButton>
             </InputGroup>
           </Col>
+          <Button onClick={() => setIsSwitch(true)} variant="outline-light">
+            <ArrowLeftRight />
+          </Button>
           <Col>
             <InputGroup className="mb-3" size="lg">
-              <FormControl type="text" value={result} />
+              <FormControl
+                type="text"
+                value={result}
+                onChange={convertHandler}
+                readOnly
+              />
               <DropdownButton
                 as={InputGroup.Append}
                 variant="outline-secondary"
@@ -112,7 +87,11 @@ const Converter = () => {
             </InputGroup>
           </Col>
         </Row>
-        <Button onClick={convertHandler}>Convert</Button>
+        <div className="text-center">
+          <Button onClick={convertHandler} variant="light">
+            Convert
+          </Button>
+        </div>
       </Form>
     </Container>
   );

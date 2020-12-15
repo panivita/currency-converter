@@ -3,7 +3,7 @@ import { Container } from "react-bootstrap";
 
 const Footer = () => {
   return (
-    <Container>
+    <Container className="container-footer">
       <footer>
         <h2 className="copyright">© 2020 Victoria Kush</h2>
       </footer>

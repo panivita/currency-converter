@@ -2,18 +2,73 @@ body {
   margin: 0;
   font-size: 17px;
   font-family: "Interstate", sans-serif;
-  color: orange;
-  background-color: #cccccc;
+  color: white;
 }
 
-h1, h2, p {
+.container h1, .copyright {
   text-align: center;
+}
+
+.main-container {
+  background-image: url("https://cdn.pixabay.com/photo/2020/06/10/09/31/bitcoin-5281988_960_720.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 70vh;
+  padding: 2% 5% 5%;
 }
 
 .container {
   width: 900px;
-  background-color: #333333;
-  margin: 3% auto;
+  background-color: #54646c;
+  margin: 3% 35%;
   padding: 20px;
   border-radius: 5px;
+}
+
+.container-footer {
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
+.btn-outline-light {
+  height: 48px;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 1430px) {
+  .container {
+    margin: 10% auto;
+    max-width: 100%;
+  }
+  .container-footer {
+    width: 100%;
+    margin: 0;
+  }
+  .main-container {
+    height: 85vh;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    width: 100%;
+  }
+  .container h1, .copyright  {
+    font-size: 28px;
+  }
+  .row {
+    flex-direction: column;
+  }
+  .btn-outline-light {
+    width: 25%;
+    margin: 0 auto 5%;
+  }
+  
 }
