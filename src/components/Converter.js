@@ -8,51 +8,62 @@ import {
   Form,
   Row,
   Col,
+  Button,
 } from "react-bootstrap";
+
+const useBinanceApi = () => {
+  const [state, setState] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(
+        "https://api.binance.com/api/v3/ticker/price"
+      );
+      const data = await response.json();
+      setState(data);
+    })();
+  }, []);
+
+  return state;
+};
+
+const useExchangeRatesapi = () => {
+  const [state, setState] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(
+        "https://api.exchangeratesapi.io/latest?base=USD"
+      );
+      const data = await response.json();
+      const result = [];
+      for (const property in data.rates) {
+        result.push({ symbol: property, price: data.rates[property] });
+      }
+      setState(result);
+    })();
+  }, []);
+
+  return state;
+};
 
 const Converter = () => {
   const [amount, setAmount] = useState(1);
-  const [fromCurrency, setFromCurrency] = useState("");
-  const [toCurrency, setToCurrency] = useState("");
-  const [fiatCurrencies, setFiatCurrencies] = useState([]);
-  const [cryptoCurrencies, setCryptoCurrencies] = useState([]);
+  const [fromCurrency, setFromCurrency] = useState("EUR");
+  const [toCurrency, setToCurrency] = useState("LTCBTC");
   const [result, setResult] = useState();
 
-  useEffect(() => {
-    fetch("https://api.exchangeratesapi.io/latest")
-      .then((res) => res.json())
-      .then((response) => {
-        const currencyAr = ["EUR"];
-        for (const key in response.rates) {
-          currencyAr.push(key);
-        }
-        setFiatCurrencies(currencyAr);
-      })
-      .catch((err) => console.log(err));
-  }, []);
+  const fromCurrencies = useExchangeRatesapi();
+  const toCurrencies = useBinanceApi();
 
-  useEffect(() => {
-    fetch("https://api.binance.com/api/v3/ticker/price")
-      .then((res) => res.json())
-      .then((response) => {
-        setCryptoCurrencies(response);
-      })
-      .catch((err) => console.log(err));
-  }, []);
+  const listFrom = true ? fromCurrencies : toCurrencies;
+  const listTo = true ? toCurrencies : fromCurrencies;
 
   const convertHandler = () => {
-    fetch(`https://api.binance.com/api/v3/ticker/price`)
-      .then((res) => res.json())
-      .then((response) => {
-        const responsePrice = response.filter(
-          (cur) => cur.symbol === toCurrency
-        );
-        const result = amount * responsePrice[0].price;
-        setResult(result.toFixed(5));
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
+    const from = listFrom.filter(({ symbol }) => symbol === fromCurrency)[0];
+    const to = listTo.filter(({ symbol }) => symbol === toCurrency)[0];
+    const result = amount * from.price * to.price;
+    setResult(result.toFixed(5));
   };
 
   return (
@@ -74,10 +85,9 @@ const Converter = () => {
                 id="from"
                 onSelect={(event) => setFromCurrency(event)}
               >
-                {" "}
-                {fiatCurrencies.map((cur) => (
-                  <Dropdown.Item key={cur} eventKey={cur}>
-                    {cur}
+                {listFrom.map(({ symbol }) => (
+                  <Dropdown.Item key={symbol} eventKey={symbol}>
+                    {symbol}
                   </Dropdown.Item>
                 ))}
               </DropdownButton>
@@ -85,14 +95,7 @@ const Converter = () => {
           </Col>
           <Col>
             <InputGroup className="mb-3" size="lg">
-              {result && (
-                <FormControl
-                  type="text"
-                  value={result}
-                  onChange={convertHandler}
-                />
-              )}
-
+              <FormControl type="text" value={result} />
               <DropdownButton
                 as={InputGroup.Append}
                 variant="outline-secondary"
@@ -100,7 +103,7 @@ const Converter = () => {
                 id="to"
                 onSelect={(event) => setToCurrency(event)}
               >
-                {cryptoCurrencies.map(({ symbol }) => (
+                {listTo.map(({ symbol }) => (
                   <Dropdown.Item key={symbol} eventKey={symbol}>
                     {symbol}
                   </Dropdown.Item>
@@ -109,6 +112,7 @@ const Converter = () => {
             </InputGroup>
           </Col>
         </Row>
+        <Button onClick={convertHandler}>Convert</Button>
       </Form>
     </Container>
   );
