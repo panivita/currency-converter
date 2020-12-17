@@ -32,10 +32,6 @@ body {
   border-radius: 0;
 }
 
-.btn-outline-light {
-  height: 48px;
-}
-
 @media (min-width: 1200px) {
   .container {
     max-width: 100%;
@@ -60,15 +56,10 @@ body {
   .container {
     width: 100%;
   }
-  .container h1, .copyright  {
+  .container h1, .copyright {
     font-size: 28px;
   }
   .row {
     flex-direction: column;
   }
-  .btn-outline-light {
-    width: 25%;
-    margin: 0 auto 5%;
-  }
-  
 }
